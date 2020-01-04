@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.15)
+project(saltflake)
+
+set(CMAKE_CXX_STANDARD 11)
+
+add_library(saltflake saltflake.cpp saltflake.h saltflakeimpl.cpp saltflakeimpl.h)
+add_library(saltflake_coverage saltflake.cpp saltflake.h saltflakeimpl.cpp saltflakeimpl.h)
+target_compile_options(saltflake_coverage PRIVATE --coverage)
+add_subdirectory(tests)
