@@ -1,0 +1,7 @@
+﻿---
+BasedOnStyle: Chromium
+IndentWidth:     4
+NamespaceIndentation: None
+AccessModifierOffset: -4
+IndentPPDirectives: None
+...
