@@ -1,5 +1,6 @@
 #include "saltflakeimpl.h"
 #include "saltflake.h"
+#include "byteswap_compat.h"
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
