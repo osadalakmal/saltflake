@@ -1,7 +1,4 @@
 cmake_minimum_required(VERSION 3.12)
-add_subdirectory(googletest)
-include(GoogleTest)
-enable_testing()
 
 file(GLOB_RECURSE TEST_SRC *.t.cpp)
 add_executable(saltflake.t.tsk ${TEST_SRC})
