@@ -37,7 +37,7 @@ std::pair<uint16_t, bool> getLowerNBitsOfIP(
         }
         if (ifa->ifa_addr->sa_family == AF_INET &&
             !(IFF_LOOPBACK & ifa->ifa_flags)) {
-            const auto addrBinForm = __bswap_32(
+            const auto addrBinForm = bswap_32(
                 reinterpret_cast<sockaddr_in*>(ifa->ifa_addr)->sin_addr.s_addr);
             auto mask = (1U << (val * 2)) - 1;
             return {(addrBinForm & (mask)), true};
