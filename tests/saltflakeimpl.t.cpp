@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 #include <ifaddrs.h>
 #include <netinet/in.h>
-#include <saltflake.h>
-#include <saltflakeimpl.cpp>
+#include <src/saltflake.h>
+
+#include <src/saltflakeimpl.cpp>
 
 using namespace ::testing;
 
@@ -36,10 +37,12 @@ public:
         SaltFlakeSettings sfSettings;
         sfSettings.ifaddrsPopulator = [](struct ifaddrs** ifs) -> int {
             *ifs = static_cast<ifaddrs*>(malloc(sizeof(ifaddrs)));
-            static sockaddr_in sin;
-            sin.sin_addr.s_addr = 2130706433;
-            (*ifs)->ifa_addr = reinterpret_cast<sockaddr*>(&sin);
-            (*ifs)->ifa_next == nullptr;
+            memset(*ifs, '\0', sizeof(ifaddrs));
+            sockaddr_in* sin = new sockaddr_in();
+            sin->sin_family = AF_INET;
+            sin->sin_addr.s_addr = htonl(2130706433UL);
+            ifs[0]->ifa_addr = reinterpret_cast<sockaddr*>(sin);
+            ifs[0]->ifa_next == NULL;
             return 0;
         };
         m_saltflake.reset(new SaltflakeImpl<>(sfSettings));
@@ -53,7 +56,7 @@ protected:
 };
 
 TEST_F(SaltflakeImplTest, Getting_An_IP_Address_Works) {
-    ASSERT_EQ(264, m_saltflake->m_machineId);
+    ASSERT_EQ(1, m_saltflake->m_machineId);
 }
 
 TEST_F(SaltflakeImplTest, Id_increases_monotomically) {
@@ -72,7 +75,7 @@ TEST_F(SaltflakeImplTest, Id_decompose_works) {
     ASSERT_EQ(id, parts[SaltflakeImpl<>::ID_INDEX]);
     ASSERT_EQ(1, parts[SaltflakeImpl<>::TIME_INDEX]);
     ASSERT_EQ(0, parts[SaltflakeImpl<>::SEQUENCE_INDEX]);
-    ASSERT_EQ(264, parts[SaltflakeImpl<>::MACHINE_ID_INDEX]);
+    ASSERT_EQ(1, parts[SaltflakeImpl<>::MACHINE_ID_INDEX]);
 }
 
 TEST_F(SaltflakeImplTest, Sequence_increases_correctly) {

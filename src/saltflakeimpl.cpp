@@ -21,8 +21,8 @@ template <typename T, T val>
 std::pair<uint16_t, bool> getLowerNBitsOfIP(
     const IfAddrsPopulator* ifsAddrsPopulator) {
     ifaddrs* ifAddrStruct = nullptr;
-    auto errCode = ifsAddrsPopulator ? getifaddrs(&ifAddrStruct)
-                                     : (*ifsAddrsPopulator)(&ifAddrStruct);
+    auto errCode = ifsAddrsPopulator ? (*ifsAddrsPopulator)(&ifAddrStruct)
+                                     : getifaddrs(&ifAddrStruct);
     assert(errCode == 0);
     auto ifaDeleter = [](ifaddrs* ifa) {
         if (ifa)
