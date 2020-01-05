@@ -28,7 +28,7 @@ public:
     }
 };
 
-int FakeSameMilliClock::timeNow = 1;
+int FakeSameMilliClock::timeNow = 0;
 
 class SaltflakeImplTest : public ::Test {
 public:
@@ -66,10 +66,11 @@ TEST_F(SaltflakeImplTest, Id_increases_monotomically) {
 }
 
 TEST_F(SaltflakeImplTest, Id_decompose_works) {
+    FakeSameMilliClock::setTimeNow(1);  // So that time component is 1
     auto id = m_fakeSaltflake->nextId();
     auto parts = SaltflakeImpl<>::decompose(id);
     ASSERT_EQ(id, parts[SaltflakeImpl<>::ID_INDEX]);
-    ASSERT_EQ(0, parts[SaltflakeImpl<>::TIME_INDEX]);
+    ASSERT_EQ(1, parts[SaltflakeImpl<>::TIME_INDEX]);
     ASSERT_EQ(0, parts[SaltflakeImpl<>::SEQUENCE_INDEX]);
     ASSERT_EQ(264, parts[SaltflakeImpl<>::MACHINE_ID_INDEX]);
 }

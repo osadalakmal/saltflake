@@ -69,7 +69,7 @@ uint64_t SaltflakeImpl<T>::nextId() {
     if (m_elapsedTime < current) {
         m_elapsedTime = current;
         m_sequence = 0;
-    } else {  // sf.elapsedTime >= current
+    } else {
         m_sequence = (m_sequence + 1) & maskSequence;
         if (m_sequence == 0) {
             m_elapsedTime++;
