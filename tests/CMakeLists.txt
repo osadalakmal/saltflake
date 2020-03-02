@@ -6,7 +6,7 @@ target_include_directories(saltflake.t.tsk PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(saltflake.t.tsk saltflake gtest gtest_main rt)
 gtest_discover_tests(saltflake.t.tsk)
 
-add_executable(saltflake.coverage.t.tsk ${TEST_SRC})
+add_executable(saltflake.coverage.t.tsk ${TEST_SRC} saltflake.t.cpp testclient.h)
 target_include_directories(saltflake.coverage.t.tsk PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(saltflake.coverage.t.tsk saltflake_coverage gtest gtest_main rt --coverage)
 target_compile_options(saltflake.coverage.t.tsk PRIVATE --coverage)

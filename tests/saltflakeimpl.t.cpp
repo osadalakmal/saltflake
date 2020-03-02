@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <ifaddrs.h>
+\
 #include <netinet/in.h>
 #include <saltflake.h>
 
