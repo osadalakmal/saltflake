@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <ifaddrs.h>
+\
 #include <netinet/in.h>
-#include <src/saltflake.h>
+#include <saltflake.h>
 
-#include <src/saltflakeimpl.cpp>
+#include <saltflakeimpl.cpp>
 
 using namespace ::testing;
 
@@ -34,15 +34,15 @@ int FakeSameMilliClock::timeNow = 0;
 class SaltflakeImplTest : public ::Test {
 public:
     SaltflakeImplTest() {
-        SaltFlakeSettings sfSettings;
+        SaltFlakeSettings sfSettings = {};
         sfSettings.ifaddrsPopulator = [](struct ifaddrs** ifs) -> int {
             *ifs = static_cast<ifaddrs*>(malloc(sizeof(ifaddrs)));
             memset(*ifs, '\0', sizeof(ifaddrs));
-            sockaddr_in* sin = new sockaddr_in();
+            auto sin = new sockaddr_in();
             sin->sin_family = AF_INET;
             sin->sin_addr.s_addr = htonl(2130706433UL);
             ifs[0]->ifa_addr = reinterpret_cast<sockaddr*>(sin);
-            ifs[0]->ifa_next == NULL;
+            ifs[0]->ifa_next == nullptr;
             return 0;
         };
         m_saltflake.reset(new SaltflakeImpl<>(sfSettings));

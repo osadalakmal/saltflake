@@ -1,6 +1,4 @@
 #include "saltflakeimpl.h"
-#include "saltflake.h"
-#include "byteswap_compat.h"
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
@@ -13,6 +11,9 @@
 #include <memory>
 #include <thread>
 
+#include "byteswap_compat.h"
+#include "saltflake.h"
+
 namespace saltflake {
 
 namespace {
@@ -24,12 +25,9 @@ std::pair<uint16_t, bool> getLowerNBitsOfIP(
     auto errCode = ifsAddrsPopulator ? (*ifsAddrsPopulator)(&ifAddrStruct)
                                      : getifaddrs(&ifAddrStruct);
     assert(errCode == 0);
-    auto ifaDeleter = [](ifaddrs* ifa) {
-        if (ifa)
-            freeifaddrs(ifa);
-    };
-    std::unique_ptr<ifaddrs, decltype(ifaDeleter)> interfaceAddrs(ifAddrStruct,
-                                                                  ifaDeleter);
+    std::unique_ptr<ifaddrs, void(*)(ifaddrs*) > interfaceAddrs(
+        ifAddrStruct,
+        ifsAddrsPopulator ? [](ifaddrs* ifa) { delete reinterpret_cast<sockaddr_in*>(ifa->ifa_addr); free(ifa); } : [](ifaddrs* ifa) { freeifaddrs(ifa); });
 
     for (auto ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
         if (!ifa->ifa_addr) {
@@ -63,7 +61,8 @@ SaltflakeImpl<T>::SaltflakeImpl(const SaltFlakeSettings& sfSettings)
 
 template <typename T>
 uint64_t SaltflakeImpl<T>::nextId() {
-    constexpr auto maskSequence = static_cast<uint16_t>((1 << SEQUENCE_BIT_LEN) - 1);
+    constexpr auto maskSequence =
+        static_cast<uint16_t>((1 << SEQUENCE_BIT_LEN) - 1);
     std::lock_guard<std::mutex> g(m_mutex);
 
     auto current = T::now() - m_startTime;
@@ -83,9 +82,9 @@ uint64_t SaltflakeImpl<T>::nextId() {
 
 template <typename T>
 uint64_t SaltflakeImpl<T>::getId() {
-    return uint64_t(m_elapsedTime.count()) << (SEQUENCE_BIT_LEN + MACHINEID_BIT_LEN) |
-           uint64_t(m_sequence) << MACHINEID_BIT_LEN |
-           uint64_t(m_machineId);
+    return uint64_t(m_elapsedTime.count())
+               << (SEQUENCE_BIT_LEN + MACHINEID_BIT_LEN) |
+           uint64_t(m_sequence) << MACHINEID_BIT_LEN | uint64_t(m_machineId);
 }
 
 template <typename T>
@@ -93,8 +92,10 @@ SaltflakeImpl<T>::~SaltflakeImpl() {}
 
 template <typename T>
 std::vector<uint64_t> SaltflakeImpl<T>::decompose(uint64_t id) {
-    constexpr uint64_t maskSequence = (0xFFFFFFFFFFFFFFFF >> (64 - SEQUENCE_BIT_LEN)) << MACHINEID_BIT_LEN;
-    constexpr uint64_t maskMachineID = 0xFFFFFFFFFFFFFFFF >> (64 - MACHINEID_BIT_LEN);
+    constexpr uint64_t maskSequence =
+        (0xFFFFFFFFFFFFFFFF >> (64 - SEQUENCE_BIT_LEN)) << MACHINEID_BIT_LEN;
+    constexpr uint64_t maskMachineID =
+        0xFFFFFFFFFFFFFFFF >> (64 - MACHINEID_BIT_LEN);
 
     std::vector<uint64_t> retval(4);
     retval[ID_INDEX] = id;
